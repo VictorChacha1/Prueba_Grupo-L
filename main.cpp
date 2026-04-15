@@ -361,10 +361,145 @@ double sumarTotalOrdenes(int indice) {
            + sumarTotalOrdenes(indice + 1);
 }
 
-// ==================== MENU AHORCADO ====================
+// ==================== MODULO AHORCADO ====================
+string palabrasFacil[] = {"ORDEN", "PLACA", "MOTOR", "FRENO", "LLANTA"};
+string palabrasDificil[] = {"CARBURADOR", "TRANSMISION", "AMORTIGUADOR", "DIFERENCIAL", "ALTERNADOR"};
+string historialGanador[20];
+string historialPalabra[20];
+int historialPartidas = 0;
+
+void mostrarAhorcado(int errores) {
+    cout << "\n";
+    switch(errores) {
+        case 0: cout << "  +---+\n  |   |\n      |\n      |\n      |\n      |\n=========\n"; break;
+        case 1: cout << "  +---+\n  |   |\n  O   |\n      |\n      |\n      |\n=========\n"; break;
+        case 2: cout << "  +---+\n  |   |\n  O   |\n  |   |\n      |\n      |\n=========\n"; break;
+        case 3: cout << "  +---+\n  |   |\n  O   |\n /|   |\n      |\n      |\n=========\n"; break;
+        case 4: cout << "  +---+\n  |   |\n  O   |\n /|\\  |\n      |\n      |\n=========\n"; break;
+        case 5: cout << "  +---+\n  |   |\n  O   |\n /|\\  |\n /    |\n      |\n=========\n"; break;
+        case 6: cout << "  +---+\n  |   |\n  O   |\n /|\\  |\n / \\  |\n      |\n=========\n"; break;
+    }
+}
+
+void jugarAhorcado() {
+    int nivel;
+    cout << "\nSeleccione nivel:" << endl;
+    cout << "1. Facil" << endl;
+    cout << "2. Dificil" << endl;
+    cout << "Opcion: ";
+    cin >> nivel;
+    while (nivel != 1 && nivel != 2) {
+        cout << "Opcion invalida. Ingrese 1 o 2: ";
+        cin >> nivel;
+    }
+    srand(time(0));
+    string palabra;
+    if (nivel == 1) palabra = palabrasFacil[rand() % 5];
+    else palabra = palabrasDificil[rand() % 5];
+    string letrasUsadas = "";
+    int errores = 0;
+    int maxErrores = 6;
+    bool gano = false;
+    cout << "\nPalabra del vocabulario de taller mecanico." << endl;
+    cout << "Tienes " << maxErrores << " intentos." << endl;
+    while (errores < maxErrores) {
+        mostrarAhorcado(errores);
+        cout << "Palabra: ";
+        bool completa = true;
+        for (int i = 0; i < (int)palabra.length(); i++) {
+            bool revelada = false;
+            for (int j = 0; j < (int)letrasUsadas.length(); j++) {
+                if (letrasUsadas[j] == palabra[i]) { revelada = true; break; }
+            }
+            if (revelada) cout << palabra[i] << " ";
+            else { cout << "_ "; completa = false; }
+        }
+        cout << endl;
+        if (completa) { gano = true; break; }
+        cout << "Letras usadas: " << letrasUsadas << endl;
+        cout << "Intentos restantes: " << (maxErrores - errores) << endl;
+        char letra;
+        cout << "Ingrese una letra: ";
+        cin >> letra;
+        letra = toupper(letra);
+        if (!isalpha(letra)) {
+            cout << "Solo se permiten letras." << endl;
+            continue;
+        }
+        bool repetida = false;
+        for (int i = 0; i < (int)letrasUsadas.length(); i++) {
+            if (letrasUsadas[i] == letra) { repetida = true; break; }
+        }
+        if (repetida) {
+            cout << "Esa letra ya fue usada." << endl;
+            continue;
+        }
+        letrasUsadas += letra;
+        bool acierto = false;
+        for (int i = 0; i < (int)palabra.length(); i++) {
+            if (palabra[i] == letra) { acierto = true; break; }
+        }
+        if (!acierto) { errores++; cout << "Letra incorrecta." << endl; }
+        else cout << "Letra correcta." << endl;
+    }
+    mostrarAhorcado(errores);
+    string ganador;
+    if (gano) {
+        cout << "\nFelicidades! Adivinaste la palabra: " << palabra << endl;
+        ganador = "Jugador";
+    } else {
+        cout << "\nPerdiste. La palabra era: " << palabra << endl;
+        ganador = "CPU";
+    }
+    if (historialPartidas < 20) {
+        historialGanador[historialPartidas] = ganador;
+        historialPalabra[historialPartidas] = palabra;
+        historialPartidas++;
+    }
+}
+
+void verHistorialAhorcado() {
+    if (historialPartidas == 0) {
+        cout << "\nNo hay partidas jugadas aun." << endl;
+        return;
+    }
+    cout << "\n===== HISTORIAL DE PARTIDAS =====" << endl;
+    int jugadorGana = 0, cpuGana = 0;
+    for (int i = 0; i < historialPartidas; i++) {
+        cout << i+1 << ". Palabra: " << historialPalabra[i]
+             << " - Resultado: " << historialGanador[i] << endl;
+        if (historialGanador[i] == "Jugador") jugadorGana++;
+        else cpuGana++;
+    }
+    cout << "\nJugador: " << jugadorGana << " victorias" << endl;
+    cout << "CPU: " << cpuGana << " victorias" << endl;
+}
+
 void menuAhorcado() {
-    cout << "\n===== MODULO AHORCADO - TALLER =====" << endl;
-    cout << "  (modulo en construccion)" << endl;
+    int opcion;
+    do {
+        cout << "\n===== AHORCADO - TALLER MECANICO =====" << endl;
+        cout << "1. Jugar" << endl;
+        cout << "2. Ver historial de partidas" << endl;
+        cout << "3. Ver instrucciones" << endl;
+        cout << "0. Volver al menu principal" << endl;
+        cout << "Opcion: ";
+        cin >> opcion;
+        switch(opcion) {
+            case 1: jugarAhorcado(); break;
+            case 2: verHistorialAhorcado(); break;
+            case 3:
+                cout << "\n--- INSTRUCCIONES ---" << endl;
+                cout << "Adivina la palabra del vocabulario de taller mecanico." << endl;
+                cout << "Tienes 6 intentos antes de que el ahorcado este completo." << endl;
+                cout << "Ingresa una letra por turno." << endl;
+                cout << "Nivel facil: palabras cortas del taller." << endl;
+                cout << "Nivel dificil: palabras tecnicas del taller." << endl;
+                break;
+            case 0: break;
+            default: cout << "Opcion invalida." << endl;
+        }
+    } while (opcion != 0);
 }
 
 // ==================== MENU PRINCIPAL ====================
@@ -392,6 +527,7 @@ void menuPrincipal() {
             case 3: buscarOrden(); break;
             case 4: ordenarOrdenes(); break;
             case 5: verHistorial(); break;
+            case 6: cout << "\nTotal facturado: $" << sumarTotalOrdenes(0) << endl; break;
             case 7: menuAhorcado(); break;
             case 0: cout << "\nCerrando sistema..." << endl; break;
             default: cout << "\nOpcion invalida." << endl;
