@@ -340,6 +340,27 @@ void verHistorial() {
     if (!hayBaja) cout << "  Ninguna orden con baja rentabilidad." << endl;
 }
 
+// ==================== FRAGMENTO CORREGIDO ====================
+// Errores corregidos:
+// 1. Falta punto y coma en linea del impuesto
+// 2. Retornaba manoObra en lugar de total
+// 3. No validaba que descuento no supere el subtotal
+double totalOrden(double manoObra, double repuestos, double descuento) {
+    double subtotal = manoObra + repuestos;
+    if (descuento > subtotal) descuento = subtotal;
+    double total = subtotal - descuento;
+    total = total + total * 0.15;
+    if (total < 0) total = 0;
+    return total;
+}
+
+// ==================== FUNCION RECURSIVA ====================
+double sumarTotalOrdenes(int indice) {
+    if (indice >= numOrdenes) return 0;
+    return ordenes[indice].getValorFinal(repuestos, numRepuestos)
+           + sumarTotalOrdenes(indice + 1);
+}
+
 // ==================== MENU AHORCADO ====================
 void menuAhorcado() {
     cout << "\n===== MODULO AHORCADO - TALLER =====" << endl;
